@@ -1,12 +1,13 @@
 var app = angular.module('Dashboard', ['ngResource','ngMap']);
 app.controller('DashboardController', function($scope, $compile, $element) {
 	$scope.abc = 3;
-	var panels = []
+	var panels = [];
 	$scope.addEmployeeLocations = function() {
 		var childScope = $scope.$new();
 		$compile('<div employeeLocations> </div>');
 	};
 })
+function DashboardController($scope, )
 app.directive('employeeLocations', employeeLocations);
 function employeeLocations() {
 	var directive = {

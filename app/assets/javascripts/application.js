@@ -12,6 +12,8 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= require angular/dashboard
 //= require angular/angular
-//= require Chart
-//= require angular/dashboard.js
+//= require angular-chart.js/angular-chart
+//= require Chart.js/Chart
+//= require ngmap/build/scripts/ng-map
