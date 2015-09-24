@@ -1,0 +1,27 @@
+{
+  "name": "Dashboard",
+  "version": "0.0.0",
+  "authors": [
+    "PhilipBui <bui.philip@hotmail.com>"
+  ],
+  "description": "Dashboard to display Employee locations and Sale flows",
+  "moduleType": [
+    "globals",
+    "node"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+	"angular": "1.2.16",
+	"font-awesome": "4.3.0",
+	"bootstrap-sass-official": "3.3.5",
+	"angular-chart.js": "0.8.4",
+	"ngmap": "1.13.4"
+  }
+}

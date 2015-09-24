@@ -1,0 +1,43 @@
+body {
+    background-color: #f8f8f8;
+}
+
+.navbar-top-right-links {
+    margin-right: 0;
+}
+
+.navbar-top-right-links li {
+    display: inline-block;
+}
+
+.navbar-top-right-links li:last-child {
+    margin-right: 15px;
+}
+
+.navbar-top-right-links li a {
+    padding: 15px;
+    min-height: 50px;
+}
+
+.navbar-top-right-links .dropdown-menu li {
+    display: block;
+}
+
+.navbar-top-right-links .dropdown-menu li:last-child {
+    margin-right: 0;
+}
+
+.navbar-top-right-links .dropdown-menu li a {
+    padding: 3px 20px;
+    min-height: 0;
+}
+
+.navbar-top-right-links .dropdown-menu li a div {
+    white-space: normal;
+}
+
+.navbar-top-right-links .dropdown-tasks {
+	width: 310px;
+	min-width: 0;
+	margin-left:auto;
+}
