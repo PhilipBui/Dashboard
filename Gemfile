@@ -46,7 +46,16 @@ end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+
+# Custom Added Gems
 gem 'angularjs-rails'
 gem 'angular-ui-bootstrap-rails' #for bootstrap UI
-# Use Bower for front-end framework management
+
+# Use Bower for front-end libraries management
 gem 'bower-rails'
+
+# Use curb for cURL in Ruby!
+# gem 'curb', '~> 0.8.8'
+
+# Use httParty for GET requests to Impac!
+gem 'httparty'

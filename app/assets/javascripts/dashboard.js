@@ -2,15 +2,18 @@ var app = angular.module('Dashboard', ['ngMap']);
 
 app.controller('DashboardController', ['$scope', '$compile', '$element', dashboardController]); 
 function dashboardController($scope, $compile, $element) {
-	$scope.abc = 3;
-	var panels = [];
 	$scope.addEmployeeLocations = function() {
-		panels.push(childScope);
 		var childScope = $scope.$new();
 		var compiledDirective = $compile('<employee-locations/>');
 		var directiveElement = compiledDirective(childScope);
 		$('.container').append(directiveElement);
 	};
+	$scope.addSaleFlows = function() {
+		var childScope = $scope.$new();
+		var compiledDirective = $compile('<sale-flows/>');
+		var directiveElement = compiledDirective(childScope);
+		$('.container').append(directiveElement);
+	}
 }
 
 app.directive('employeeLocations', employeeLocations);
@@ -22,16 +25,16 @@ function employeeLocations() {
 	return directive;
 }
 
-app.controller('employeeLocationsController', ['$scope', '$element', employeeLocationsController]);
-function employeeLocationsController($scope, $element) {	
+app.controller('employeeLocationsController', ['$scope', '$element', '$http', employeeLocationsController]);
+function employeeLocationsController($scope, $element, $http) {	
 	$scope.data = [5, 10];
 	$scope.series = ["sa", "sa2"];
 	$scope.chartType = "line";
 	$scope.addEmployeeLocations = 3;
 	var childScope;
+	$scope.url = 'employeeLocations.json'
 	$scope.buildMap = function() {
 		childScope = $scope.$new;
-		
 	}
 	$scope.clean = function() {
 		childScope.$destroy();
@@ -40,6 +43,12 @@ function employeeLocationsController($scope, $element) {
 	$scope.destroy = function() {
 		$element.remove();
 	}
+	fetchContent = function(resource) {
+		$http.get(resource).then(function(result){
+			return result.data
+		});
+	}
+	$scope.content = fetchContent('employeeList.json')
 }
 
 app.directive('mapChart', map);
