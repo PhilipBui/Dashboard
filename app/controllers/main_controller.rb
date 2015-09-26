@@ -4,9 +4,9 @@ Url= 'https://api-impac-uat.maestrano.io/api/v1/get_widget'
 UserId= '72db99d0-05dc-0133-cefe-22000a93862b'
 PassId= '_cIOpimIoDi3RIviWteOTA'
 
-EmployeeList = 'hr/employees_list'
+EmployeeList = 'hr/employees_list' 
 EmployeeDetails = 'hr/employee_details'
-InvoiceList = 'hr/invoices/list'
+InvoiceList = 'invoices/list'
 Metadata = 'metadata[organization_ids][]'
 OrgId = 'org-fbte'
 class MainController < ApplicationController

@@ -9,9 +9,10 @@ Rails.application.routes.draw do
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
-  get 'employeeList.json' => 'main#employeeList'
-  get 'employeeDetails.json' => 'main#employeeDetails'
-  get 'invoiceList.json' => 'main#invoiceList'
+  get 'employeeList.json' => 'main#employeeList' 		#redirected to main controller's employeeList function
+  get 'employeeDetails.json' => 'main#employeeDetails' 	#redirected to main controller's employeeDetails function
+  get 'invoiceList.json' => 'main#invoiceList' 			#redirected to main controller's invoiceList function
+  
   # Example of named route that can be invoked with purchase_url(id: product.id)
   #   get 'products/:id/purchase' => 'catalog#purchase', as: :purchase
 

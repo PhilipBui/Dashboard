@@ -1,18 +1,24 @@
-<div class="col-lg-6 col-sm-12" ng-controller="employeeLocationsController">
+<div class="col-lg-6 col-sm-12">
 	<div class="panel panel-primary">
 		<div class="panel-heading">
 			Employee Locations
 			<span class="pull-right"> 
-				<a ng-click="destroy()"> <i class="icon-collapse-top"> </i> </a>
+				<a ng-click="destroy()"> <i class="fa icon-collapse-top"> </i> </a>
 				<i class="fa fa-refresh"> </i> 
 			</span>
 		</div>
 		<div class="panel-body"> 
-			{{content}}
+			<div class="text-center" ng-hide="dataLoaded">
+				<i class="fa fa-spinner fa-spin fa-5x"> </i>
+			</div>
+			<div ng-show="dataLoaded">
+				<div class="chart-animation" ng-include="chartType"> 
+				</div>
+			</div>
 		</div>
 		<div class="panel-footer"> 
 			<span class="text-muted small">
-			Did you know? 37% of your employees reside at blah.
+			{{randomHint}}
 			</span>
 			<span class="pull-right" style="margin: 0px;">
 				<i class="fa fa-area-chart"> </i>
@@ -22,7 +28,6 @@
 				<i class="fa fa-pie-chart"> </i>
 			</span>
 		</div>
-		
 	</div>
 </div>
 	

@@ -54,8 +54,5 @@ gem 'angular-ui-bootstrap-rails' #for bootstrap UI
 # Use Bower for front-end libraries management
 gem 'bower-rails'
 
-# Use curb for cURL in Ruby!
-# gem 'curb', '~> 0.8.8'
-
 # Use httParty for GET requests to Impac!
 gem 'httparty'

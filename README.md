@@ -14,15 +14,16 @@ Perfect for learning how to use AngularJS controllers and directives (communicat
 
 ### Installing Ruby on Rails
 
-1. Install (Ruby)[http://rubyonrails.org/download/] (I used 2.0.0)
+1. Install (Ruby)[http://rubyonrails.org/download/] I used 2.0.0
 2. Install the DevKit for additional gems (libraries)
 3. (Windows) Usng Command Prompt run the following ```gem install rails```
 
 ### Installing Bower
 
 1. Install (node.js)[https://nodejs.org/en/]
-2. Install (git)[https://git-scm.com/downloads]
-3. (Windows) Using Command Prompt run the following ```npm install -g bower```
+2. Install (git)[https://git-for-windows.github.io/]
+3. Make sure to tick [x] Run Git from the Windows Command Prompt when prompted.
+4. (Windows) Using Command Prompt run the following ```npm install -g bower```
 
 ### Using Bower with Ruby on Rails
 

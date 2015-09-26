@@ -3,6 +3,3 @@
 # You can use CoffeeScript in this file: http://coffeescript.org/
 
 #= require_self
-#= require_tree ./angular
-#= require_tree ./angular/controllers
-#= require_tree ./angular/directives

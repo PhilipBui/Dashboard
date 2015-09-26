@@ -41,3 +41,25 @@ body {
 	min-width: 0;
 	margin-left:auto;
 }
+
+.chart-animation.ng-enter, 
+.chart-animation.ng-leave {
+	-webkit-transition: 0.5s linear all;
+    -moz-transition: 0.5s linear all;
+	-o-transition: 0.5s linear all;
+	transition: 0.5s linear all;
+}
+.chart-animation.ng-enter {
+	z-index: 100;
+	opacity: 0;
+}
+.chart-animation.ng-enter.ng-enter-active {
+	opacity: 1;
+}
+.chart-animation.ng-leave {
+  z-index: 101;
+  opacity: 1;
+}
+.chart-animation.ng-leave.ng-leave-active {
+  opacity: 0;
+}

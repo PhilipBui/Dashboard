@@ -1,7 +1,8 @@
 var app = angular.module('Dashboard', ['ngMap']);
 
-app.controller('DashboardController', ['$scope', '$compile', '$element', dashboardController]); 
-function dashboardController($scope, $compile, $element) {
+// Controls creation and deletion of widgets AKA directives
+app.controller('DashboardController', ['$scope', '$compile', dashboardController]); 
+function dashboardController($scope, $compile) {
 	$scope.addEmployeeLocations = function() {
 		var childScope = $scope.$new();
 		var compiledDirective = $compile('<employee-locations/>');
@@ -16,55 +17,66 @@ function dashboardController($scope, $compile, $element) {
 	}
 }
 
+// Employee locations widget with its respective controller
 app.directive('employeeLocations', employeeLocations);
 function employeeLocations() {
 	var directive = {
 		restrict: 'E',
-		templateUrl: 'employeeLocations.html'
+		templateUrl: 'employeeLocations.html',
+		controller: employeeLocationsController
 	};
 	return directive;
 }
 
-app.controller('employeeLocationsController', ['$scope', '$element', '$http', employeeLocationsController]);
-function employeeLocationsController($scope, $element, $http) {	
-	$scope.data = [5, 10];
-	$scope.series = ["sa", "sa2"];
-	$scope.chartType = "line";
-	$scope.addEmployeeLocations = 3;
-	var childScope;
-	$scope.url = 'employeeLocations.json'
-	$scope.buildMap = function() {
-		childScope = $scope.$new;
+// Each panel will have a different controller hence different content.
+app.controller('employeeLocationsController', ['$scope', '$element', '$http', '$interval', '$timeout', employeeLocationsController]);
+function employeeLocationsController($scope, $element, $http, $interval, $timeout) {	
+	$scope.dataLoaded = false;
+	$scope.chartType = 'lineChart.html'
+	$scope.chart = {
+		data: [5, 1],
+		labels: ['SA', 'Syd']
+	};
+	$scope.employeeLocations = [];
+	$scope.randomHint = 'Did you know?';
+	$scope.totalEmployees = 0;
+	getContent = function(resource) {
+		$http.get(resource).then( function(result) {
+			cleanJson(result.data);
+		});
 	}
-	$scope.clean = function() {
+	cleanJson = function(employeeDetailsJSON) {
+		var addresses = [];
+		for (var i = 0; i < employeeDetailsJSON.content.employees.length; i++) {
+			var address = employeeDetailsJSON.content.employees[i].address;
+			var splitAddress = address.split(', ');
+			var newAddress = splitAddress[splitAddress.length-2] + ', ' + splitAddress[splitAddress.length-1];
+			addresses.push(newAddress);
+			$scope.employeeLocations.push([employeeDetailsJSON.content.employees[i].gender, employeeDetailsJSON.content.employees[i].hired_date, newAddress]);
+		}
+		$scope.dataLoaded = true;
+		$scope.totalEmployees = employeeLocations.length;
+	}
+	clean = function() {
 		childScope.$destroy();
 		$('.panel-body').empty();
+	}
+	refreshHint = function() {
 	}
 	$scope.destroy = function() {
 		$element.remove();
 	}
+	getContent('employeeDetails.json');
+	$interval(refreshHint, 5000);
+}
+// Each panel will have a different controller hence different content. Sale Flows request different content hence different controller.
+app.controller('saleFlowsController', ['$scope', '$element', '$http', saleFlowsController]);
+function saleFlowsController($scope, $element, $http) {
+	// Local functions don't need to be included in the scope
 	fetchContent = function(resource) {
 		$http.get(resource).then(function(result){
 			return result.data
 		});
 	}
-	$scope.content = fetchContent('employeeList.json')
 }
 
-app.directive('mapChart', map);
-function map() {
-	var directive = {
-		restrict: 'E',
-		scope: false,
-		templateUrl: 'map.html'
-	};
-	return directive;
-}
-app.directive('line', line);
-function line() {
-	var directive = {
-		restrict: 'E',
-		templateUrl: 'map.html'
-	};
-	return directive;
-}
