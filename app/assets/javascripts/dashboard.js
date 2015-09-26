@@ -1,6 +1,6 @@
-var app = angular.module('Dashboard', ['ngMap']);
+var app = angular.module('Dashboard', ['ngMap', 'chart.js']);
 
-// Controls creation and deletion of widgets AKA directives
+// Controller that controls creation and deletion of widgets AKA directives
 app.controller('DashboardController', ['$scope', '$compile', dashboardController]); 
 function dashboardController($scope, $compile) {
 	$scope.addEmployeeLocations = function() {
@@ -22,46 +22,80 @@ app.directive('employeeLocations', employeeLocations);
 function employeeLocations() {
 	var directive = {
 		restrict: 'E',
-		templateUrl: 'employeeLocations.html',
+		templateUrl: 'templates/employeeLocations.html',
 		controller: employeeLocationsController
 	};
 	return directive;
 }
 
-// Each panel will have a different controller hence different content.
-app.controller('employeeLocationsController', ['$scope', '$element', '$http', '$interval', '$timeout', employeeLocationsController]);
-function employeeLocationsController($scope, $element, $http, $interval, $timeout) {	
+// Each panel will have a different controller to control different content.
+app.controller('employeeLocationsController', ['$scope', '$element', '$http', '$interval', '$q', employeeLocationsController]);
+function employeeLocationsController($scope, $element, $http, $interval, $q) {	
 	$scope.dataLoaded = false;
-	$scope.chartType = 'lineChart.html'
+	$scope.panelContent = 'templates/map.html';
+	// For use by charts
+	$scope.chartType = 'Line';
 	$scope.chart = {
-		data: [5, 1],
+		data: [[5, 1]],
 		labels: ['SA', 'Syd']
 	};
+	// For use by maps
 	$scope.employeeLocations = [];
+	$scope.markers = [
+	
+	];
+	// For use by random hints
 	$scope.randomHint = 'Did you know?';
-	$scope.totalEmployees = 0;
 	getContent = function(resource) {
-		$http.get(resource).then( function(result) {
+		$http.get(resource).then(function(result) { // Waits for http.get to finish then call function
 			cleanJson(result.data);
 		});
 	}
-	cleanJson = function(employeeDetailsJSON) {
+	cleanJson = function(employeeDetails) {
 		var addresses = [];
-		for (var i = 0; i < employeeDetailsJSON.content.employees.length; i++) {
-			var address = employeeDetailsJSON.content.employees[i].address;
+		for (var i = 0; i < employeeDetails.content.employees.length; i++) { // Can't use forEach or for employees in
+			var address = employeeDetails.content.employees[i].address;
 			var splitAddress = address.split(', ');
 			var newAddress = splitAddress[splitAddress.length-2] + ', ' + splitAddress[splitAddress.length-1];
 			addresses.push(newAddress);
-			$scope.employeeLocations.push([employeeDetailsJSON.content.employees[i].gender, employeeDetailsJSON.content.employees[i].hired_date, newAddress]);
 		}
+		var counts = {};
+		addresses.forEach(function(address) {
+			counts[address] = (counts[address] || 0) +1;
+		});
+		var deferred = $q.defer();
+		for (var key in counts) {
+			var value = counts[key];
+			var results = deferred.promise.then(geocodeAddress(key)).then(function(result) { // $q waits for geocode then executes functions
+				var data = [key, result.lat, result.lng];
+				$scope.markers.push(data);
+			});
+			$scope.employeeLocations.push([key, value]);
+		}
+		$scope.chart.data = [[]];
+		$scope.chart.labels = [];
+		$scope.employeeLocations.forEach(function(data) {
+			$scope.chart.data[0].push(data[0]);
+			$scope.chart.labels.push(data[1]);
+		});
 		$scope.dataLoaded = true;
-		$scope.totalEmployees = employeeLocations.length;
+		
 	}
 	clean = function() {
 		childScope.$destroy();
 		$('.panel-body').empty();
 	}
 	refreshHint = function() {
+		
+	}
+	$scope.changeChart = function(chartType) {
+		if (chartType == 'Map') {
+			$scope.panelContent = 'templates/map.html';
+		}
+		else {
+			$scope.panelContent = 'templates/chart.html';
+			$scope.chartType = chartType;
+		}
 	}
 	$scope.destroy = function() {
 		$element.remove();

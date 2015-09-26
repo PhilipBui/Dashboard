@@ -7,7 +7,7 @@ The application uses the following front-end libraries:
 * Angular - Obvious addition that does most of the front-end work
 * Bootstrap (SASS) - For CSS classes and templates, such as panels and navbars
 * font-awesome - For icons such as refresh, arrows 
-* Chart.js - For charts, such as line, bar
+* angular-chart.js - For charts, such as line, bar
 * ngmap - For Google Maps, using original Google maps API.
 
 Perfect for learning how to use AngularJS controllers and directives (communication and sharing scope), AngularJS communicating with Ruby on Rails, and getting started with a Ruby on Rails application.
