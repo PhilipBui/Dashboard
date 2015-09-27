@@ -13,6 +13,7 @@
 //= require jquery
 //= require jquery_ujs
 //= require angular/angular
+//= require bootstrap-sass-official/assets/javascripts/bootstrap
 //= require Chart.js/Chart
 //= require angular-chart.js/angular-chart
 //= require ngmap/build/scripts/ng-map

@@ -9,3 +9,16 @@ function geocodeAddress(address) {
 		}
 	});
 }
+function createMarker(location) {
+	var marker = new google.maps.Marker({
+		position: location
+	});
+	return marker;
+}
+function createMarker(description, location) {
+	var marker = new google.maps.Marker({
+		title: description,
+		position: location
+	});
+	return marker;
+}

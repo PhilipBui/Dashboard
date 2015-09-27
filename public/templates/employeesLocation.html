@@ -1,0 +1,36 @@
+<div class="col-lg-6 col-sm-12">
+	<div class="panel panel-primary">
+		<div class="panel-heading">
+			Employee Locations
+			<span class="pull-right"> 
+				<span class="dropdown"> 
+					<a href class="dropdown-toggle panel-options" data-toggle="dropdown"> 
+						<i class="fa fa-cog"> </i>
+					</button>
+					<ul class="dropdown-menu">
+						<li> <a href ng-click="changeChart('map')"> <i class="fa fa-map"> </i> Map </a> </li>
+						<li> <a href ng-click="changeChart('lineChart')"> <i class="fa fa-line-chart"> </i> Line </a> </li>
+						<li> <a href ng-click="changeChart('barChart')"> <i class="fa fa-bar-chart"> </i> Bar </a> </li>
+						<li> <a href ng-click="changeChart('pieChart')"> <i class="fa fa-pie-chart"> </i> Pie </a> </li>
+						<li> <a href ng-click="changeChart('polarAreaChart')"> <i class="fa fa-area-chart"> </i> Area </a> </li>
+						<li class="divider"> </li>
+						<li> <a href ng-click="getContent()"> <i class="fa fa-refresh"> </i> Refresh </a> </li>
+						<li> <a href ng-click="destroy()"> <i class="fa fa-times"> </i> Close </a> </li>
+					</ul>
+				</span>
+			</span>
+		</div>
+		<div class="panel-body"> 
+			<div class="text-center" ng-hide="dataLoaded">
+				<i class="fa fa-spinner fa-spin fa-5x text-center"> </i>
+			</div>
+			<div ng-show="dataLoaded">
+				<!-- use ng-include when reusing reusable HTML DOM elements, use ng-Switch when switching between static content -->
+				<div class="chart-animation" ng-include="panelContent"> 
+				</div>
+				<span class="pull-left small"> Total Employees: {{totalEmployees}} </span>
+			</div>
+		</div>
+	</div>
+</div>
+	

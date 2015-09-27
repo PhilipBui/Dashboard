@@ -13,7 +13,7 @@ class MainController < ApplicationController
   include HTTParty
   def index
   end
-  def employeeList
+  def employeesList
 	response = HTTParty.get(Url, {
 		:query => {'engine' => EmployeeList, Metadata => OrgId},
 		:basic_auth => { :username => UserId, :password => PassId},
@@ -31,7 +31,7 @@ class MainController < ApplicationController
 	})
 	render json: response
   end
-  def invoiceList
+  def invoicesList
     response = HTTParty.get(Url, {
 		:query => {'engine' => InvoiceList, Metadata => OrgId},
 		:basic_auth => { :username => UserId, :password => PassId},

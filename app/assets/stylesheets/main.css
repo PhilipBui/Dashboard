@@ -1,47 +1,77 @@
 body {
     background-color: #f8f8f8;
 }
-
-.navbar-top-right-links {
-    margin-right: 0;
+#wrapper {
+  padding-left: 250px;
+  transition: all 0.4s ease 0s;
 }
-
-.navbar-top-right-links li {
-    display: inline-block;
+.vertical-center {
+    float:none;
+    display:inline-block;
+    vertical-align:middle;
+    margin-right:-4px;
 }
-
-.navbar-top-right-links li:last-child {
-    margin-right: 15px;
-}
-
 .navbar-top-right-links li a {
     padding: 15px;
+	min-width: 50px;
     min-height: 50px;
 }
-
 .navbar-top-right-links .dropdown-menu li {
     display: block;
 }
-
-.navbar-top-right-links .dropdown-menu li:last-child {
-    margin-right: 0;
-}
-
 .navbar-top-right-links .dropdown-menu li a {
-    padding: 3px 20px;
-    min-height: 0;
+    min-height: 0px;
+}
+.navbar-top-links .dropdown-user {
+    right: 0px;
+    left: auto;
+}
+.container {
+	left: 200px;
+	padding: 0px;
+    min-height: 568px;
+    background-color: #fff;
+	position: absolute;
+}
+.sidebar-nav {
+    z-index: 1000;
+    position: absolute;
+    width: 200px;
+    height: 100%;
 }
 
-.navbar-top-right-links .dropdown-menu li a div {
-    white-space: normal;
+.sidebar {
+    position: absolute;
+    top: 0px;
+    width: 200px;
+    margin: 0px;
+    padding: 0px;
+    list-style: none;
 }
 
-.navbar-top-right-links .dropdown-tasks {
-	width: 310px;
-	min-width: 0;
-	margin-left:auto;
+.sidebar li {
+    text-indent: 20px;
+    line-height: 40px;
 }
 
+.sidebar li a {
+	padding-left: 0px;
+    display: block;
+    text-decoration: none;
+}
+
+.sidebar li {
+    border-bottom: 1px solid #E7E7E7;
+}
+.sidebar-header {
+    height: 65px;
+    font-size: 18px;
+	color: #777;
+	padding: 10px;
+}
+.panel-options {
+	color: #333333;
+}
 .chart-animation.ng-enter, 
 .chart-animation.ng-leave {
 	-webkit-transition: 0.5s linear all;
