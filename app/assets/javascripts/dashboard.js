@@ -42,11 +42,12 @@ function salesFlow() {
 app.controller('employeesLocationController', ['$scope', '$element', '$http', '$q', employeesLocationController]);
 function employeesLocationController($scope, $element, $http, $q) {	
 	$scope.dataLoaded = false; // Is panel content loaded, used to load content when finished otherwise show loading icon
-	var employeesLocation = []; // Employees location {state, country, how many employees} 
+	var employeesLocation = {}; // Employees location {address, how many employees} 
 	$scope.panelContent = 'templates/lineChart.html'; // Chooses what content inside panel, {map, line, bar, pie, area}
 	$scope.chart = {
 		data: [[]], 
-		labels: []
+		labels: [],
+		series: []
 	};
 	var markers = []; // Google Map Markers
 	$scope.totalEmployees = 0; // Total employees found
@@ -67,39 +68,43 @@ function employeesLocationController($scope, $element, $http, $q) {
 			addresses.push(newAddress);
 		}
 		$scope.totalEmployees = addresses.length;
-		var counts = {}; // We combine same addresses and calculate how many employees in each one, since geocoding is an expensive task
+		employeesLocation = {}; // We combine same addresses and calculate how many employees in each one, since geocoding is an expensive task
 		addresses.forEach(function(address) {
-			counts[address] = (counts[address] || 0) +1;
+			employeesLocation[address] = (employeesLocation[address] || 0) +1;
 		});
-		for (var address in counts) {
-			var value = counts[address];
-			var splitAddress = address.split(', ');
-			var state = splitAddress[0];
-			var country = splitAddress[1];
+		$q.all([loadMarkers(employeesLocation), loadChart('Employee Locations', employeesLocation)]).then(function() {
+			$scope.dataLoaded = true;
+		});
+		
+	}
+	loadMarkers = function(markerData) {
+		markers = [];
+		for (var address in markerData) {
+			var employeesAmount = markerData[address];
 			geocoder.geocode({'address' : address}, function(results, status) {
 				if (status == google.maps.GeocoderStatus.OK) {
 					var googlesAddress = results[0].formatted_address;
 					var result = results[0].geometry.location;
-					var marker = createMarker(googlesAddress + ' has ' + $scope.totalEmployees/value + '% of your employees!', result);
-					$scope.markers.push(marker);
+					var marker = createMarker(googlesAddress + ' has ' + employeesAmount + ' employees!', result);
+					markers.push(marker);
 				}
 				else {
 					alert('Could not find address' + status);
 				}
-				});
-			employeesLocation.push([state, country, value]);
+			});
 		}
-		loadChart();
 	}
-	loadChart = function() {
+	loadChart = function(description, chartData) { // chartData must be in the form of [[label, data]]
 		$scope.chart.data = [[]];
 		$scope.chart.labels = [];
-		employeesLocation.forEach(function(data) {
-			$scope.chart.data[0].push(data[2]);
-			$scope.chart.labels.push(data[0]);
-		});
+		$scope.chart.series = [];
+		for (var address in chartData) {
+			var employeesAmount = chartData[address];
+			$scope.chart.data[0].push(employeesAmount);
+			$scope.chart.labels.push(address);
+		}
+		$scope.chart.series.push(description);
 		$scope.chart.data[0].push(0);
-		$scope.dataLoaded = true;
 	}
 	renderMarkers = function(map) {
 		for (var i = 0; i < markers.length; i++) {
@@ -119,7 +124,114 @@ function employeesLocationController($scope, $element, $http, $q) {
 	$scope.getContent('employeeDetails.json');
 }
 // Each panel will have a different controller hence different content. Sales Flow request different content hence different controller.
-app.controller('salesFlowController', ['$scope', '$element', '$http', salesFlowController]);
-function salesFlowController($scope, $element, $http) {
-	
+app.controller('salesFlowController', ['$scope', '$element', '$http', '$q', salesFlowController]);
+function salesFlowController($scope, $element, $http, $q) {
+	$scope.dataLoaded = false; // Is panel content loaded, used to load content when finished otherwise show loading icon
+	var salesFlow = []; // Sales Flow location {state, country, how much sales} 
+	$scope.panelContent = 'templates/lineChart.html'; // Chooses what content inside panel, {map, line, bar, pie, area}
+	$scope.chart = {
+		data: [[], []], 
+		labels: [],
+		series: []
+	};
+	var markers = []; // Google Map Markers
+	$scope.totalSales = 0; // Total sales found
+	var locationInvoicesDue = {};
+	var locationInvoicesPaid = {};
+	$scope.getContent = function(resource) {
+		$scope.dataLoaded = false
+		$http.get(resource).then(function(result) { // Waits for $http.get to finish then call function
+			loadContent(result.data);
+		});
+	}
+	loadContent = function(invoicesList) {
+		var addresses = [];
+		for (var i = 0; i < invoicesList.content.entities.length; i++) {
+			var locality = invoicesList.content.entities[i].address.l;
+			var region = invoicesList.content.entities[i].address.r;
+			var country = invoicesList.content.entities[i].c;
+			var newAddress = '';
+			if (locality != null) {
+				newAddress += locality;
+			}
+			if (region != null) {
+				newAddress += ' ' + region;
+			}
+			if (country != null) {
+				newAddress += ' ' + country
+			}
+			newAddress.replace('-', '');
+			var totalPaid = invoicesList.content.entities[i].total_paid;
+			var totalDue = invoicesList.content.entities[i].total_due;
+			if (totalPaid == null) {
+				totalPaid = 0;
+			}
+			if (totalDue == null) {
+				totalDue = 0;
+			}
+			if (newAddress != '') {
+				addresses.push([newAddress, totalPaid, totalDue]);
+			}
+		}
+		invoicesPaid = {}; // We combine same addresses and calculate how much invoices paid in each one, since geocoding is an expensive task
+		invoicesDue = {}; // We combine same addresses and calculate how much invoices due in each one, since geocoding is an expensive task
+		$scope.totalSales = 0;
+		addresses.forEach(function(address) {
+			invoicesPaid[address[0]] = (invoicesPaid[address] || 0) + address[1];
+			invoicesDue[address[0]] = (invoicesDue[address] || 0) + address[2];
+			$scope.totalSales += address[2];
+		});
+		$q.all([loadMarkers(invoicesPaid, invoicesDue), loadChart('Invoices Paid', invoicesPaid, 'Invoices Due', invoicesDue)]).then(function() {
+			$scope.dataLoaded = true;
+		});
+	}
+	loadMarkers = function(markerData, markerData2) {
+		markers = [];
+		for (var address in markerData) {
+			var invoicesPaidAmount = markerData[address];
+			var invoicesDueAmount = markerData2[address];
+			geocoder.geocode({'address' : address}, function(results, status) {
+				if (status == google.maps.GeocoderStatus.OK) {
+					var googlesAddress = results[0].formatted_address;
+					var result = results[0].geometry.location;
+					var marker = createMarker(googlesAddress + ' has ' + invoicesPaidAmount + ' sales flow with expected ' + invoicesDueAmount + '!', result);
+					markers.push(marker);
+				}
+				else {
+					console.log('Could not find address' + status);
+				}
+			});
+		}
+	}
+	loadChart = function(description, chartData, description2, chartData2) { // chartData must be in the form of [[label, data]]
+		$scope.chart.data = [[], []];
+		$scope.chart.labels = [];
+		$scope.chart.series = [];
+		for (var address in chartData) {
+			var invoicesPaidAmount = chartData[address];
+			var invoicesDueAmount = chartData2[address]
+			$scope.chart.data[0].push(invoicesPaidAmount);
+			$scope.chart.data[1].push(invoicesDueAmount);
+			$scope.chart.labels.push(address);
+		}
+		$scope.chart.series.push(description);
+		$scope.chart.series.push(description2);
+		$scope.chart.data[0].push(0);
+	}
+	renderMarkers = function(map) {
+		for (var i = 0; i < markers.length; i++) {
+			markers[i].setMap(map);
+		}
+	}
+	$scope.changeChart = function(chartType) {
+		$scope.panelContent = 'templates/' + chartType + '.html';
+	}
+	$scope.destroy = function() {
+		$element.remove();
+	}
+	// Event listener whenenver map is loaded, ngmaps broadcasts mapInitialized when initaliazed 
+	$scope.$on('mapInitialized', function (event, map) {
+		renderMarkers(map);
+	})
+	$scope.getContent('invoicesList.json');
 }
