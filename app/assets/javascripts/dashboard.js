@@ -58,25 +58,32 @@ function employeesLocationController($scope, $element, $http, $q) {
 		});
 	}
 	loadContent = function(employeeDetails) {
-		var addresses = [];
+		$scope.totalEmployees = 0;
+		employeesLocation = {}; // We combine same addresses and calculate how many employees in each one, since geocoding is an expensive task
 		for (var i = 0; i < employeeDetails.content.employees.length; i++) {
 			var address = employeeDetails.content.employees[i].address;
 			var splitAddress = address.split(', ');
 			var state = splitAddress[splitAddress.length-2].replace(/[0-9]/g, '');
 			var country = splitAddress[splitAddress.length-1];
 			var newAddress = state + ', ' + country;
-			addresses.push(newAddress);
+			employeesLocation[newAddress] = (employeesLocation[newAddress] || 0) + 1;
+			$scope.totalEmployees+= 1;
 		}
-		$scope.totalEmployees = addresses.length;
-		employeesLocation = {}; // We combine same addresses and calculate how many employees in each one, since geocoding is an expensive task
-		addresses.forEach(function(address) {
-			employeesLocation[address] = (employeesLocation[address] || 0) +1;
-		});
-		$q.all([loadMarkers(employeesLocation), loadChart('Employee Locations', employeesLocation)]).then(function() {
+		var promises = []; // To implement faster data loading, we use $q promises to do asynchronous data loading
+		angular.forEach(employeesLocation, function(employeesAmount, address) { 
+			var markerData = {};
+			markerData[address] = employeesAmount;
+			var loadMarkerPromise = loadMarkers(markerData); // Returns a $q.deferredTask.promise
+			promises.push(loadMarkerPromise); // We put each geocoding request into a seperate promise
+		})
+		var loadChartPromise = loadChart('Employees Location', employeesLocation); // Returns a $q.deferredTask.promise
+		promises.push(loadChartPromise); // We put load chart request as another promise
+		$q.all(promises).then(function(){ // We execute all the promises asynchronously
 			$scope.dataLoaded = true;
-		});
+		})
 	}
-	loadMarkers = function(markerData) {
+	loadMarkers = function(markerData) { // markerData must be in the form of {[label, data]}
+		var deferred = $q.defer();
 		markers = [];
 		for (var address in markerData) {
 			var employeesAmount = markerData[address];
@@ -88,12 +95,15 @@ function employeesLocationController($scope, $element, $http, $q) {
 					markers.push(marker);
 				}
 				else {
-					alert('Could not find address' + status);
+					console.log('Could not find address' + address + ' : ' + status);
 				}
 			});
 		}
+		deferred.resolve();
+		return deferred.promise;
 	}
-	loadChart = function(description, chartData) { // chartData must be in the form of [[label, data]]
+	loadChart = function(description, chartData) { // chartData must be in the form of {[label, data]}
+		var deferred = $q.defer();
 		$scope.chart.data = [[]];
 		$scope.chart.labels = [];
 		$scope.chart.series = [];
@@ -104,6 +114,8 @@ function employeesLocationController($scope, $element, $http, $q) {
 		}
 		$scope.chart.series.push(description);
 		$scope.chart.data[0].push(0);
+		deferred.resolve();
+		return deferred.promise;
 	}
 	renderMarkers = function(map) {
 		for (var i = 0; i < markers.length; i++) {
@@ -136,8 +148,8 @@ function salesFlowController($scope, $element, $http, $q) {
 	var markers = []; // Google Map Markers
 	$scope.totalSales = 0; // Total sales found
 	$scope.totalInvoices = 0; // Total invoices found (including due)
-	var locationInvoicesDue = {};
-	var locationInvoicesPaid = {};
+	var invoicesDue = {};
+	var invoicesPaid = {};
 	$scope.getContent = function(resource) {
 		$scope.dataLoaded = false
 		$http.get(resource).then(function(result) { // Waits for $http.get to finish then call function
@@ -145,7 +157,10 @@ function salesFlowController($scope, $element, $http, $q) {
 		});
 	}
 	loadContent = function(invoicesList) {
-		var addresses = [];
+		invoicesPaid = {}; // We combine same addresses and calculate how much invoices paid in each one, since geocoding is an expensive task
+		invoicesDue = {}; // We combine same addresses and calculate how much invoices due in each one, since geocoding is an expensive task
+		$scope.totalSales = 0; // We don't use the JSON's totalInvoices since we only want to map invoice data that has addresses associated with them
+		$scope.totalInvoices = 0;
 		for (var i = 0; i < invoicesList.content.entities.length; i++) {
 			var locality = invoicesList.content.entities[i].address.l;
 			var region = invoicesList.content.entities[i].address.r;
@@ -162,35 +177,38 @@ function salesFlowController($scope, $element, $http, $q) {
 				alert(country);
 			}
 			newAddress = newAddress.replace(/-/g, '');
-			console.log(newAddress);
-			var totalPaid = invoicesList.content.entities[i].total_paid;
-			var totalDue = invoicesList.content.entities[i].total_due;
-			if (totalPaid == null) {
-				totalPaid = 0;
-			}
-			if (totalDue == null) {
-				totalDue = 0;
-			}
 			var trimmedAddress = newAddress.replace(/^\s+$/, ''); // Address validation, don't map data without addresses
 			if (trimmedAddress != '') {
-				addresses.push([newAddress, totalPaid, totalDue]);
+				var totalPaid = invoicesList.content.entities[i].total_paid;
+				var totalDue = invoicesList.content.entities[i].total_due;
+				if (totalPaid == null) {
+					totalPaid = 0;
+				}
+				if (totalDue == null) {
+					totalDue = 0;
+				}
+				invoicesPaid[newAddress] = (invoicesPaid[newAddress] || 0) + totalPaid;
+				invoicesDue[newAddress] = (invoicesDue[newAddress] || 0) + totalDue;
+				$scope.totalSales += totalPaid;
+				$scope.totalInvoices += totalPaid + totalDue; // Tossup between accessing JSON content + validation or adding
 			}
 		}
-		invoicesPaid = {}; // We combine same addresses and calculate how much invoices paid in each one, since geocoding is an expensive task
-		invoicesDue = {}; // We combine same addresses and calculate how much invoices due in each one, since geocoding is an expensive task
-		$scope.totalSales = 0; // We don't use the JSON's totalInvoices since we only want to map invoice data that has addresses associated
-		$scope.totalInvoices = 0; // with them.
-		addresses.forEach(function(address) {
-			invoicesPaid[address[0]] = (invoicesPaid[address] || 0) + address[1];
-			invoicesDue[address[0]] = (invoicesDue[address] || 0) + address[2];
-			$scope.totalSales += address[1];
-			$scope.totalInvoices += address[1] + address[2];
-		});
-		$q.all([loadMarkers(invoicesPaid, invoicesDue), loadChart('Invoices Paid', invoicesPaid, 'Invoices Due', invoicesDue)]).then(function() {
+		var promises = []; // To implement faster data loading, we use $q promises to do asynchronous data loading
+		angular.forEach(invoicesPaid, function(invoicesPaid, address) {  // Use either data, both map same addresses anyways
+			var invoicesPaidData = {};
+			invoicesPaidData[address] = invoicesPaid;
+			var invoicesDueData = {};
+			invoicesDueData[address] = invoicesDue[address];
+			var loadMarkerPromise = loadMarkers(invoicesPaidData, invoicesDueData);
+			promises.push(loadMarkerPromise); // We put each geocoding request into a seperate promise
+		})
+		// We don't use load chart promise here, since we want to clean the addresses when queried into Google with Google's full addresses.
+		$q.all(promises).then(loadChart("Invoices Paid", invoicesPaid, "Invoices Due", invoicesDue)).then(function() { // We execute all the promises asynchronously
 			$scope.dataLoaded = true;
-		});
+		})
 	}
-	loadMarkers = function(markerData, markerData2) {
+	loadMarkers = function(markerData, markerData2) { // markerData must be in the form of {[label, data]}
+		var deferred = $q.defer();
 		markers = [];
 		for (var address in markerData) {
 			var invoicesPaidAmount = markerData[address];
@@ -201,14 +219,21 @@ function salesFlowController($scope, $element, $http, $q) {
 					var result = results[0].geometry.location;
 					var marker = createMarker(googlesAddress + ' has $' + invoicesPaidAmount + ' sales flow with expected $' + invoicesDueAmount + '!', result);
 					markers.push(marker);
+					delete invoicesPaid[address]; // Cleaning invoices paid address with Google's address
+					invoicesPaid[googlesAddress] = (invoicesPaid[googlesAddress] || 0) + invoicesPaidAmount;
+					delete invoicesDue[address]; // Cleaning invoices due address with Google's address
+					invoicesDue[googlesAddress] = (invoicesDue[googlesAddress] || 0) + invoicesDueAmount;
 				}
 				else {
-					console.log('Could not find address' + status);
+					console.log('Could not find address' + address + ' : ' + status);
 				}
 			});
 		}
+		deferred.resolve();
+		return deferred.promise;
 	}
-	loadChart = function(description, chartData, description2, chartData2) { // chartData must be in the form of [[label, data]]
+	loadChart = function(description, chartData, description2, chartData2) { // chartData must be in the form of {[label, data]}
+		var deferred = $q.defer();
 		$scope.chart.data = [[], []];
 		$scope.chart.labels = [];
 		$scope.chart.series = [];
@@ -221,7 +246,8 @@ function salesFlowController($scope, $element, $http, $q) {
 		}
 		$scope.chart.series.push(description);
 		$scope.chart.series.push(description2);
-		$scope.chart.data[0].push(0);
+		deferred.resolve();
+		return deferred.promise;
 	}
 	renderMarkers = function(map) {
 		for (var i = 0; i < markers.length; i++) {
