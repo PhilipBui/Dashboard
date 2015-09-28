@@ -82,7 +82,7 @@ function employeesLocationController($scope, $element, $http, $q) {
 			$scope.dataLoaded = true;
 		})
 	}
-	loadMarkers = function(markerData) { // markerData must be in the form of {[label, data]}
+	loadMarkers = function(markerData) { // markerData must be in the form of {[address => employeesAmount, data]}
 		var deferred = $q.defer();
 		markers = [];
 		for (var address in markerData) {
@@ -95,7 +95,7 @@ function employeesLocationController($scope, $element, $http, $q) {
 					markers.push(marker);
 				}
 				else {
-					console.log('Could not find address' + address + ' : ' + status);
+					console.log('Could not find address' + address + ' : ' + status); // Should delete 
 				}
 			});
 		}
@@ -138,7 +138,6 @@ function employeesLocationController($scope, $element, $http, $q) {
 app.controller('salesFlowController', ['$scope', '$element', '$http', '$q', salesFlowController]);
 function salesFlowController($scope, $element, $http, $q) {
 	$scope.dataLoaded = false; // Is panel content loaded, used to load content when finished otherwise show loading icon
-	var salesFlow = []; // Sales Flow location {state, country, how much sales} 
 	$scope.panelContent = 'templates/lineChart.html'; // Chooses what content inside panel, {map, line, bar, pie, area}
 	$scope.chart = {
 		data: [[], []], 
@@ -148,8 +147,8 @@ function salesFlowController($scope, $element, $http, $q) {
 	var markers = []; // Google Map Markers
 	$scope.totalSales = 0; // Total sales found
 	$scope.totalInvoices = 0; // Total invoices found (including due)
-	var invoicesDue = {};
-	var invoicesPaid = {};
+	var invoicesDue = {}; // Total sales for each address
+	var invoicesPaid = {}; // Total invoices for each address
 	$scope.getContent = function(resource) {
 		$scope.dataLoaded = false
 		$http.get(resource).then(function(result) { // Waits for $http.get to finish then call function
