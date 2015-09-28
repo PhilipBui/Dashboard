@@ -75,7 +75,6 @@ function employeesLocationController($scope, $element, $http, $q) {
 		$q.all([loadMarkers(employeesLocation), loadChart('Employee Locations', employeesLocation)]).then(function() {
 			$scope.dataLoaded = true;
 		});
-		
 	}
 	loadMarkers = function(markerData) {
 		markers = [];
@@ -136,6 +135,7 @@ function salesFlowController($scope, $element, $http, $q) {
 	};
 	var markers = []; // Google Map Markers
 	$scope.totalSales = 0; // Total sales found
+	$scope.totalInvoices = 0; // Total invoices found (including due)
 	var locationInvoicesDue = {};
 	var locationInvoicesPaid = {};
 	$scope.getContent = function(resource) {
@@ -159,8 +159,10 @@ function salesFlowController($scope, $element, $http, $q) {
 			}
 			if (country != null) {
 				newAddress += ' ' + country
+				alert(country);
 			}
-			newAddress.replace('-', '');
+			newAddress = newAddress.replace(/-/g, '');
+			console.log(newAddress);
 			var totalPaid = invoicesList.content.entities[i].total_paid;
 			var totalDue = invoicesList.content.entities[i].total_due;
 			if (totalPaid == null) {
@@ -169,17 +171,20 @@ function salesFlowController($scope, $element, $http, $q) {
 			if (totalDue == null) {
 				totalDue = 0;
 			}
-			if (newAddress != '') {
+			var trimmedAddress = newAddress.replace(/^\s+$/, ''); // Address validation, don't map data without addresses
+			if (trimmedAddress != '') {
 				addresses.push([newAddress, totalPaid, totalDue]);
 			}
 		}
 		invoicesPaid = {}; // We combine same addresses and calculate how much invoices paid in each one, since geocoding is an expensive task
 		invoicesDue = {}; // We combine same addresses and calculate how much invoices due in each one, since geocoding is an expensive task
-		$scope.totalSales = 0;
+		$scope.totalSales = 0; // We don't use the JSON's totalInvoices since we only want to map invoice data that has addresses associated
+		$scope.totalInvoices = 0; // with them.
 		addresses.forEach(function(address) {
 			invoicesPaid[address[0]] = (invoicesPaid[address] || 0) + address[1];
 			invoicesDue[address[0]] = (invoicesDue[address] || 0) + address[2];
-			$scope.totalSales += address[2];
+			$scope.totalSales += address[1];
+			$scope.totalInvoices += address[1] + address[2];
 		});
 		$q.all([loadMarkers(invoicesPaid, invoicesDue), loadChart('Invoices Paid', invoicesPaid, 'Invoices Due', invoicesDue)]).then(function() {
 			$scope.dataLoaded = true;
@@ -194,7 +199,7 @@ function salesFlowController($scope, $element, $http, $q) {
 				if (status == google.maps.GeocoderStatus.OK) {
 					var googlesAddress = results[0].formatted_address;
 					var result = results[0].geometry.location;
-					var marker = createMarker(googlesAddress + ' has ' + invoicesPaidAmount + ' sales flow with expected ' + invoicesDueAmount + '!', result);
+					var marker = createMarker(googlesAddress + ' has $' + invoicesPaidAmount + ' sales flow with expected $' + invoicesDueAmount + '!', result);
 					markers.push(marker);
 				}
 				else {

@@ -11,8 +11,8 @@
 						<li> <a href ng-click="changeChart('map')"> <i class="fa fa-map"> </i> Map </a> </li>
 						<li> <a href ng-click="changeChart('lineChart')"> <i class="fa fa-line-chart"> </i> Line </a> </li>
 						<li> <a href ng-click="changeChart('barChart')"> <i class="fa fa-bar-chart"> </i> Bar </a> </li>
-						<li> <a href ng-click="changeChart('pieChart')"> <i class="fa fa-pie-chart"> </i> Pie </a> </li>
-						<li> <a href ng-click="changeChart('polarAreaChart')"> <i class="fa fa-area-chart"> </i> Area </a> </li>
+						<li class="disabled"> <a> <i class="fa fa-pie-chart"> </i> Pie </a> </li>
+						<li class="disabled"> <a> <i class="fa fa-area-chart"> </i> Area </a> </li>
 						<li class="divider"> </li>
 						<li> <a href ng-click="getContent()"> <i class="fa fa-refresh"> </i> Refresh </a> </li>
 						<li> <a href ng-click="destroy()"> <i class="fa fa-times"> </i> Close </a> </li>
@@ -28,7 +28,8 @@
 				<!-- use ng-include when reusing reusable HTML DOM elements, use ng-Switch when switching between static content -->
 				<div class="chart-animation" ng-include="panelContent"> 
 				</div>
-				{{totalSales}}
+				<span class="pull-left"> Total Invoices: {{totalInvoices}} </span>
+				<span class="pull-right"> Invoices Paid: {{totalSales}} </span>
 			</div>
 		</div>
 	</div>

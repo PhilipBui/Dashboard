@@ -1,7 +1,7 @@
 # Simple Dashboard App
-Single Page Application (SPA) Dashboard using AngularJS and Ruby on Rails for a job application. 
+Single Page Application (SPA) Dashboard using AngularJS and Ruby on Rails for Impac!. 
 Dashboard panels are rendered using widgets (directives) that can be appended or deleted accordingly using AngularJS controllers.
-Panel data are gathered by an AngularJS controller using a ```GET/``` request to the server, which gets routed & handled by a Ruby on Rails controller, which then queries JOB's server with parameters for respective data which then gets formatted into JSON, and finally returned to the AngularJS controller.
+Panel data are gathered by an AngularJS controller using a ```GET/``` request to the server, which gets routed & handled by a Ruby on Rails controller, which then queries Impac!'s server with parameters for respective data which then gets formatted into JSON, and finally returned to the AngularJS controller.
 
 The application uses the following front-end libraries:
 * Angular - Obvious addition that does most of the front-end work
